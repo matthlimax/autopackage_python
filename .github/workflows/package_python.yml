@@ -20,7 +20,7 @@ jobs:
           ls -l
           
       - name: Save artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: veracode_pack
           path: veracode-auto-pack-Web-dotnet-js.zip
