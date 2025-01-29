@@ -76,4 +76,3 @@ jobs:
            vkey: "${{ secrets.VERACODE_KEY }}"
            createProfile: true
            deleteincompletescan: 2
-           continue-on-error: true
