@@ -18,9 +18,25 @@ jobs:
           curl -fsS https://tools.veracode.com/veracode-cli/install | sh
           ./veracode package --source . --output veracode-auto-pack-Web-dotnet-js.zip --trust
           ls -l
+
+Veracode-SAST-Pipeline-Scan:
+    runs-on: ubuntu-latest
+    container:
+      image: veracode/pipeline-scan:latest
+      options: --user root
+    steps:
+      - name: checkout
+        uses: actions/checkout@master
+          
+      - name: scan 
+        run: |
+          zip -r uploadToVeracode.zip . -x "*node_modules" "*.git" -i "*.js"  "*.html"  "*.htm"  "*.ts"  "*.tsx"  "*.json"  "*.css"  "*.jsp"  "*.vue"
+          java -jar /opt/veracode/pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -f uploadToVeracode.zip
+    continue-on-error: false
           
       - name: Save artifact
         uses: actions/upload-artifact@v3
         with:
           name: veracode_pack
           path: veracode-auto-pack-Web-dotnet-js.zip
+
