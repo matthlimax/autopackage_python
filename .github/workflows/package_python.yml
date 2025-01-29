@@ -57,7 +57,7 @@ jobs:
 
 
   Install-Requeriments:
-    runs-on: ubunut-latest
+    runs-on: ubuntu-latest
     container:
       image: python:3.11.0b1-buster
     steps:
