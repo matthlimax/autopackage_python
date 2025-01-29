@@ -21,8 +21,8 @@ jobs:
           
       - name: Check if veracode_pack exists
         run: |
-          if [ -f veracode-auto-pack-Web-dotnet-js.zip ]; then
-            echo "Arquivo encontrado!"
+          if [ -f veracode-auto-pack-dvsa-python.zip ]; then
+            echo "Arquivo encontrado: veracode-auto-pack-dvsa-python.zip"
           else
             echo "Arquivo não encontrado!"
             exit 1  # Termina o processo com erro se o arquivo não for encontrado
