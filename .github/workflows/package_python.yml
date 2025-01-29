@@ -19,6 +19,15 @@ jobs:
           ./veracode package --source . --output veracode-auto-pack-dvsa-python.zip --trust
           ls -l
           
+      - name: Check if veracode_pack exists
+        run: |
+          if [ -f veracode-auto-pack-Web-dotnet-js.zip ]; then
+            echo "Arquivo encontrado!"
+          else
+            echo "Arquivo não encontrado!"
+            exit 1  # Termina o processo com erro se o arquivo não for encontrado
+          fi
+
       - name: Save artifact
         uses: actions/upload-artifact@v3
         with:
