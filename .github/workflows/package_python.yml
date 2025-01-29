@@ -1,127 +1,27 @@
-name: Veracode Demo
-on:
-  push:
-    branches:
-      - pipeline-scan
-      - policy-scan
-      - sandbox-scan
-##Nome das branches opcional, caso queira criar múltiplas branches e executar
-#cada scan em uma branch específica. Em cada stage também há um if: para
-#validar se a stage deve ser executada naquela branch.
 
-env:
-  package_path: 'verascan'
-  package_name: 'veracode-auto-pack-verademo-python-python.zip'
-## O nome da variável package_name irá depender da linguagem/nome do projeto.
+on: 
+  push: 
+    branches: [master]
 
 jobs:
-  Package:
-    name: Veracode Package
+  veracode-auto-package:
+    name: Veracode Auto Package
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout https://github.com/${{ github.repository }}@${{ github.ref }}
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Veracode Package
-        env:
+    steps: 
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Veracode CLI Download and Package
+        env: 
           VERACODE_API_KEY_ID: ${{ secrets.VERACODE_ID }}
           VERACODE_API_KEY_SECRET: ${{ secrets.VERACODE_KEY }}
         run: |
           curl -fsS https://tools.veracode.com/veracode-cli/install | sh
-          ./veracode package --source . --output ${{env.package_path}} --trust
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+          ./veracode package --source . --output veracode-auto-pack-Web-dotnet-js.zip --trust
+          ls -l
+          
+      - name: Save artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: artifacts
-          path: ${{env.package_path}}/${{env.package_name}}
-
-  Veracode-SCA:
-    if: github.ref == 'refs/heads/pipeline-scan'
-    name: Veracode SCA Pipeline
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-    steps:
-      - name: Checkout https://github.com/${{ github.repository }}@${{ github.ref }}
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Install dependencies
-        run: |
-          pip install pipenv
-      - name: Veracode SCA
-        env:
-          SCAN_DIR: '.'
-          SRCCLR_API_TOKEN: ${{ secrets.SRCCLR_API_TOKEN }}
-          SRCCLR_SCM_REF_TYPE: 'branch'
-          SRCCLR_SCM_REF: ${{ github.ref }}
-          SRCCLR_SCM_REV: ${{ github.run_id }}
-          EXTRA_ARGS: '--recursive --update-advisor --uri-as-name' 
-        run: |
-          curl -sSL https://download.sourceclear.com/ci.sh | bash -s -- scan $EXTRA_ARGS
-        continue-on-error: true
-
-  Veracode-SAST-Pipeline:
-    name: Veracode SAST Pipeline
-    runs-on: ubuntu-latest
-    needs: [Package]
-
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts
-          path: ./${{env.package_path}}
-
-      - name: Pipeline Scan with CLI - default
-        env:
-          VERACODE_API_KEY_ID: ${{ secrets.VERACODE_ID }}
-          VERACODE_API_KEY_SECRET: ${{ secrets.VERACODE_KEY }}
-        run: |
-          curl -fsS https://tools.veracode.com/veracode-cli/install | sh
-          ./veracode static scan "./${{env.package_path}}/${{env.package_name}}"
-        continue-on-error: true
-
-  Veracode-Policy-Scan:
-    if: github.ref == 'refs/heads/policy-scan'
-    name: Veracode Policy Scan
-    runs-on: ubuntu-latest
-    needs: [Package]
-
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts
-          path: ./${{env.package_path}}
-
-      - name: Upload and Scan
-        env:
-          APPLICATION_NAME: Verademo-python-1
-        run: |
-          curl -L -o veracode-wrapper.jar https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java/24.7.14.0/vosp-api-wrappers-java-24.7.14.0.jar
-          java -jar veracode-wrapper.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -action UploadAndScan -deleteincompletescan 2 -createprofile true -appname "${{ env.APPLICATION_NAME }}" -version "${{ github.run_id }}" -filepath "./${{env.package_path}}/${{env.package_name}}"
-
-  Veracode-Sandbox-Scan:
-    if: github.ref == 'refs/heads/sandbox-scan'
-    name: Veracode Sandbox Scan
-    runs-on: ubuntu-latest
-    needs: [Package]
-    strategy:
-      fail-fast: true
-    env:
-      APPLICATION_NAME: Verademo-python-1
-
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts
-          path: ./${{env.package_path}}
-
-      - name: Upload and Scan
-        run: |
-          curl -L -o veracode-wrapper.jar https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java/24.7.14.0/vosp-api-wrappers-java-24.7.14.0.jar
-          java -jar veracode-wrapper.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -action UploadAndScan -deleteincompletescan 2 -createprofile true -appname "${{ env.APPLICATION_NAME }}" -version "${{ github.run_id }}" -filepath "./${{env.package_path}}/${{env.package_name}}" -createsandbox true -sandboxname "${{ github.ref }}"
-
+          name: veracode_pack
+          path: veracode-auto-pack-Web-dotnet-js.zip
