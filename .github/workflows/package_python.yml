@@ -47,6 +47,12 @@ jobs:
         with:
           name: veracode_pack
           path: ./veracode_auto_pack
+
+      - name: Check file permissions
+        run: |
+         ls -l ./veracode_auto_pack
+         chmod +r ./veracode_auto_pack/veracode-auto-pack-dvsa-python.zip
+         ls -l ./veracode_auto_pack/veracode-auto-pack-dvsa-python.zip  # Verifique se o arquivo tem permissão de leitura
       - name: Pipeline Scan with wrapper
         run: |
           curl -O -L https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
