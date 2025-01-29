@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: veracode_pack
-          path: veracode-auto-pack-dvsa-python.zip
+          path: veracode-auto-pack-dvsa-python.zip/./veracode_auto_pack
 
   Veracode-SAST-Pipeline:
     name: Veracode SAST Pipeline
@@ -46,10 +46,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: veracode_pack
-          path: veracode-auto-pack-dvsa-python.zip
+          path: ./veracode_auto_pack
       - name: Pipeline Scan with wrapper
         run: |
           curl -O -L https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
           unzip -u pipeline-scan-LATEST.zip
-          java -jar pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" --file ./veracode_auto_pack/veracode-auto-pack-dvsa-python.zip 
+          java -jar pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" --file veracode-auto-pack-dvsa-python.zip/veracode_pack/./veracode_auto_pack/veracode-auto-pack-dvsa-python.zip 
         continue-on-error: true
