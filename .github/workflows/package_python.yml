@@ -19,6 +19,12 @@ jobs:
           ./veracode package --source . --output veracode-auto-pack-Web-dotnet-js.zip --trust
           ls -l
 
+      - name: Upload artfacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artfacts
+          path: ${{env.package_path}}/${{env.package_name}}
+
       - name: Pipeline Scan with wrapper - default policy
         env:
           POLICY_NAME: Veracode Recommended Medium
