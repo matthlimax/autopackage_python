@@ -21,12 +21,13 @@ jobs:
           
       - name: Check if veracode_pack exists
         run: |
-          if [ -f /home/runner/work/autopackage_python/autopackage_python/veracode-auto-pack-dvsa-python.zip ]; then
-            echo "Arquivo encontrado: veracode-auto-pack-dvsa-python.zip"
+          if [ -f /home/runner/work/autopackage_python/autopackage_python/veracode-auto-pack-dvsa-python.zip/veracode-auto-pack-autopackage_python-python.zip ]; then
+            echo "Arquivo encontrado: veracode-auto-pack-autopackage_python-python.zip"
           else
             echo "Arquivo não encontrado!"
             exit 1  # Termina o processo com erro se o arquivo não for encontrado
           fi
+
 
 
       - name: Save artifact
