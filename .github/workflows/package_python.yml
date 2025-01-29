@@ -17,11 +17,29 @@ jobs:
           VERACODE_API_KEY_SECRET: ${{ secrets.VERACODE_KEY }}
         run: |
           curl -fsS https://tools.veracode.com/veracode-cli/install | sh
-          ./veracode package --source . --output veracode-auto-pack-Web-dotnet-js.zip --trust
+          ./veracode package --source . --output veracode-auto-pack-dvsa-python.zip --trust
           ls -l
           
       - name: Save artifact
         uses: actions/upload-artifact@v3
         with:
           name: veracode_pack
-          path: veracode-auto-pack-Web-dotnet-js.zip
+          path: veracode-auto-pack-dvsa-python.zip
+
+  Veracode-SAST-Pipeline:
+    name: Veracode SAST Pipeline
+    runs-on: ubuntu-latest
+    needs: [veracode-auto-package]
+
+    steps:
+      - name: Download artfacts
+        uses: actions/download-artifact@v4
+        with:
+          name: veracode_pack
+          path: veracode-auto-pack-dvsa-python.zip
+      - name: Pipeline Scan with wrapper
+        run: |
+          curl -O -L https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+          unzip -u pipeline-scan-LATEST.zip
+          java -jar pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" --file veracode-auto-pack-dvsa-python.zip/veracode_pack 
+        continue-on-error: true
