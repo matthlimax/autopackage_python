@@ -51,5 +51,5 @@ jobs:
         run: |
           curl -O -L https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
           unzip -u pipeline-scan-LATEST.zip
-          java -jar pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" --file veracode_pack 
+          java -jar pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" --file ./veracode_auto_pack/veracode-auto-pack-dvsa-python.zip 
         continue-on-error: true
