@@ -19,24 +19,75 @@ jobs:
           ./veracode package --source . --output veracode-auto-pack-Web-dotnet-js.zip --trust
           ls -l
 
-Veracode-SAST-Pipeline-Scan:
-    runs-on: ubuntu-latest
-    container:
-      image: veracode/pipeline-scan:latest
-      options: --user root
-    steps:
-      - name: checkout
-        uses: actions/checkout@master
-          
-      - name: scan 
+      - name: Pipeline Scan with wrapper - default policy
+        env:
+          POLICY_NAME: Veracode Recommended Medium
         run: |
-          zip -r uploadToVeracode.zip . -x "*node_modules" "*.git" -i "*.js"  "*.html"  "*.htm"  "*.ts"  "*.tsx"  "*.json"  "*.css"  "*.jsp"  "*.vue"
-          java -jar /opt/veracode/pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -f uploadToVeracode.zip
-    continue-on-error: false
-          
-      - name: Save artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: veracode_pack
-          path: veracode-auto-pack-Web-dotnet-js.zip
+          curl -O -L https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+          unzip -u pipeline-scan-LATEST.zip
+          java -jar pipeline-scan.jar -vid "${{ secrets.VID }}" -vkey "${{ secrets.VKEY }}" --file "./${{env.package_path}}/${{env.package_name}}" -pn "${{ env.POLICY_NAME }}" --issue_details true --json_output true
+        continue-on-error: true
 
+
+  Veracode-Policy-Scan:
+# esse job possui diversas formas de executar o upload and scan, com o Java Wrapper ou Action.
+# escolha a que melhor se ajustar ao ambiente
+    name: Veracode Policy Scan
+    runs-on: ubuntu-latest
+    needs: [veracode-auto-package]
+
+    steps:
+     - name: Download artfacts
+       uses: actions/download-artifact@v4
+       with:
+          name: artfacts
+          path: ./${{env.package_path}}
+
+     - name: Upload and Scan
+       env:
+        APPLICATION_NAME: Verademo-python-1
+        run: |
+          curl -L -o veracode-wrapper.jar https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java/24.7.14.0/vosp-api-wrappers-java-24.7.14.0.jar
+          java -jar veracode-wrapper.jar -vid "${{ secrets.VID }}" -vkey "${{ secrets.VKEY }}" -action UploadAndScan -deleteincompletescan 2 -createprofile true -appname "${{ env.APPLICATION_NAME }}" -version "${{ github.run_id }}" -filepath "./${{env.package_path}}/${{env.package_name}}"
+
+     - name: Upload and Scan - Action
+       uses: veracode/veracode-uploadandscan-action@0.2.7
+       with:
+          appname: "Verademo-python-1"
+          filepath: "./${{env.package_path}}/${{env.package_name}}"
+          vid: "${{ secrets.VID }}"
+          vkey: "${{ secrets.VKEY }}"
+          deleteincompletescan: 2
+
+  Veracode-Sandbox-Scan:
+# esse job possui diversas formas de executar o upload and scan, com o Java Wrapper ou Action.
+# escolha a que melhor se ajustar ao ambiente
+    if: github.ref == 'refs/heads/sandbox-scan'
+    name: Veracode Sandbox Scan
+    runs-on: ubuntu-latest
+    needs: [veracode-auto-package]
+    strategy:
+      fail-fast: true
+    env:
+      APPLICATION_NAME: Verademo-python-1
+
+    steps:
+      - name: Download artfacts
+        uses: actions/download-artifact@v4
+        with:
+          name: artfacts
+          path: ./${{env.package_path}}
+
+      - name: Upload and Scan
+        run: |
+          curl -L -o veracode-wrapper.jar https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java/24.7.14.0/vosp-api-wrappers-java-24.7.14.0.jar
+          java -jar veracode-wrapper.jar -vid "${{ secrets.VID }}" -vkey "${{ secrets.VKEY }}" -action UploadAndScan -deleteincompletescan 2 -createprofile true -appname "${{ env.APPLICATION_NAME }}" -version "${{ github.run_id }}" -filepath "./${{env.package_path}}/${{env.package_name}}" -createsandbox true -sandboxname "${{ github.ref }}" 
+
+      - name: Upload and Scan - Action
+        uses: veracode/veracode-uploadandscan-action@0.2.7
+        with:
+          appname: "Verademo-python-1"
+          filepath: "./${{env.package_path}}/${{env.package_name}}"
+          vid: "${{ secrets.VID }}"
+          vkey: "${{ secrets.VKEY }}"
+          deleteincompletescan: 2
