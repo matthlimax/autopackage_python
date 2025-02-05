@@ -16,7 +16,7 @@ jobs:
           VERACODE_API_KEY_SECRET: ${{ secrets.VERACODE_KEY }}
         run: |
           curl -fsS https://tools.veracode.com/veracode-cli/install | sh
-          ./veracode package --source . --output veracode-auto-pack-dvsa-python.zip --trust
+          ./veracode package --source . --output veracode_pack --trust
           ls -l
           
       - name: Check if veracode_pack exists
