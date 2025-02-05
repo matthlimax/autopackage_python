@@ -19,14 +19,15 @@ jobs:
           ./veracode package --source . --output verascan --trust
           ls -l
           
-      - name: Check if veracode_pack exists
+      - name: Check if verascan exists
         run: |
-          if [ -f /home/runner/work/autopackage_python/autopackage_python/veracode-auto-pack-dvsa-python.zip/veracode-auto-pack-autopackage_python-python.zip ]; then
-            echo "Arquivo encontrado: veracode-auto-pack-autopackage_python-python.zip"
+          if [ -f /home/runner/work/autopackage_python/autopackage_python/verascan/verascan.zip ]; then
+           echo "Arquivo encontrado: verascan.zip"
           else
-            echo "Arquivo não encontrado!"
-            exit 1  # Termina o processo com erro se o arquivo não for encontrado
+           echo "Arquivo não encontrado!"
+           exit 1  # Termina o processo com erro se o arquivo não for encontrado
           fi
+
 
 
 
