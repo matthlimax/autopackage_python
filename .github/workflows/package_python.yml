@@ -82,12 +82,12 @@ jobs:
         env:
           SRCCLR_API_TOKEN: ${{ secrets.SRCCLR_API_TOKEN }}
         run: |
-          export SRCCLR_SCM_URI="https://github.com/lucasferreiram3/PyGoat.git"
+          export SRCCLR_SCM_URI="https://github.com/matthlimax/autopackage_python.git"
           export SRCCLR_SCM_REF=${{ github.workflow }}
           export SRCCLR_SCM_REF_TYPE="branch"
           export SRCCLR_SCM_REV=${{ github.run_id }}
           export EXTRA_ARGS='--update-advisor --uri-as-name'
-          curl -sSL https://download.sourceclear.com/ci.sh | bash -s scan --update-advisor --uri-as-name
+          curl -sSL https://download.sourceclear.com/ci.sh | bash -s scan --update-advisor --uri-as-name --submit
 
   Veracode-SAST-Policy-Scan:
      name: Veracode Policy Scan
@@ -99,13 +99,13 @@ jobs:
          uses: actions/download-artifact@v4
          with:
            name: veracode_pack
-           path: ./veracode_auto_pack
+           path: verascan
 
        - name: Upload and Scan - Action
          uses: veracode/veracode-uploadandscan-action@0.2.7
          with:
            appname: App-Package-Python
-           filepath: ./veracode_auto_pack/veracode-auto-pack-autopackage_python-python.zip
+           filepath: verascan/veracode-auto-pack-autopackage_python-python.zip
            vid: "${{ secrets.VERACODE_ID }}"
            vkey: "${{ secrets.VERACODE_KEY }}"
            createProfile: true
@@ -121,13 +121,13 @@ jobs:
          uses: actions/download-artifact@v4
          with:
            name: veracode_pack
-           path: ./veracode_auto_pack
+           path: verascan
 
        - name: Upload and Scan - Action
          uses: veracode/veracode-uploadandscan-action@0.2.7
          with:
            appname: App-Package-Python
-           filepath: ./veracode_auto_pack/veracode-auto-pack-autopackage_python-python.zip
+           filepath: verascan/veracode-auto-pack-autopackage_python-python.zip
            sandboxName: master
            createSandBox: true
            vid: "${{ secrets.VERACODE_ID }}"
