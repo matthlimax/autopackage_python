@@ -18,15 +18,6 @@ jobs:
           curl -fsS https://tools.veracode.com/veracode-cli/install | sh
           ./veracode package --source . --output verascan --trust
           ls -l
-          
-      - name: Check if verascan exists
-        run: |
-          if [ -f /home/runner/work/autopackage_python/autopackage_python/verascan/verascan.zip ]; then
-           echo "Arquivo encontrado: verascan.zip"
-          else
-           echo "Arquivo não encontrado!"
-           exit 1  # Termina o processo com erro se o arquivo não for encontrado
-          fi
 
 
 
