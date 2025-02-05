@@ -38,18 +38,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: veracode_pack
-          path: ./veracode_auto_pack
+          path: verascan
       
       - name: Pipeline Scan with wrapper
         run: |
           curl -O -L https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
           unzip -u pipeline-scan-LATEST.zip
-          java -jar pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" --file ./veracode_auto_pack/veracode-auto-pack-autopackage_python-python.zip
+          java -jar pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" --file verascan/veracode-auto-pack-autopackage_python-python.zip
         continue-on-error: false
 
 
   Install-Requeriments:
     runs-on: ubuntu-latest
+    needs: [veracode-auto-package]
     container:
       image: python:3.11.0b1-buster
     steps:
@@ -117,7 +118,7 @@ jobs:
 
      steps:
        - name: Download artfacts
-         uses: actions/download-artifact@v3
+         uses: actions/download-artifact@v4
          with:
            name: veracode_pack
            path: ./veracode_auto_pack
