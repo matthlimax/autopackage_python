@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Veracode CLI Download and Package
         env: 
@@ -16,7 +16,7 @@ jobs:
           VERACODE_API_KEY_SECRET: ${{ secrets.VERACODE_KEY }}
         run: |
           curl -fsS https://tools.veracode.com/veracode-cli/install | sh
-          ./veracode package --source . --output veracode-auto-pack-dvsa-python.zip --trust
+          ./veracode package --source . --output verascan --trust
           ls -l
           
       - name: Check if veracode_pack exists
@@ -31,10 +31,10 @@ jobs:
 
 
       - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: veracode_pack
-          path: veracode-auto-pack-dvsa-python.zip
+          path: verascan
 
   Veracode-SAST-Pipeline:
     name: Veracode SAST Pipeline
@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Download artfacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: veracode_pack
           path: ./veracode_auto_pack
@@ -75,7 +75,7 @@ jobs:
        image: python:3.11.0b1-buster
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: pip install
         run: |
           python -m pip install --no-cache-dir pip==22.0.4
@@ -103,7 +103,7 @@ jobs:
 
      steps:
        - name: Download artfacts
-         uses: actions/download-artifact@v3
+         uses: actions/download-artifact@v4
          with:
            name: veracode_pack
            path: ./veracode_auto_pack
