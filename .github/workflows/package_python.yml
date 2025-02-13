@@ -51,6 +51,8 @@ jobs:
   Veracode_Software_Composition_Analisys:
     runs-on: ubuntu-latest
     needs: [veracode-auto-package]
+    container:
+       image: python:3.11.0b1-buster
     steps:
       - name: Checkout
         uses: actions/checkout@v4
