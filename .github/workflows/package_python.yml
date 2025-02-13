@@ -48,8 +48,13 @@ jobs:
         continue-on-error: false
 
 
-
-        
+  Veracode_Software_Composition_Analisys:
+    runs-on: ubuntu-latest
+    container:
+       image: python:3.11.0b1-buster
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Run Veracode SCA
         env:
           SRCCLR_API_TOKEN: ${{ secrets.SRCCLR_API_TOKEN }}
